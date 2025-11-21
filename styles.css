@@ -1,0 +1,156 @@
+/* GitLab Merge Requests View */
+.gitlab-merge-requests-view {
+	padding: 10px;
+}
+
+.gitlab-mr-header {
+	margin-bottom: 15px;
+}
+
+.gitlab-mr-controls {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px;
+	padding: 10px;
+	background-color: var(--background-secondary);
+	border-radius: 5px;
+}
+
+.gitlab-mr-filter {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.gitlab-mr-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.gitlab-mr-item {
+	padding: 12px;
+	background-color: var(--background-secondary);
+	border-radius: 5px;
+	border-left: 3px solid var(--interactive-accent);
+}
+
+.gitlab-mr-item:hover {
+	background-color: var(--background-secondary-alt);
+}
+
+.gitlab-mr-item-header {
+	margin-bottom: 8px;
+}
+
+.gitlab-mr-title {
+	font-weight: 600;
+	font-size: 1.1em;
+	color: var(--text-normal);
+	text-decoration: none;
+}
+
+.gitlab-mr-title:hover {
+	color: var(--interactive-accent);
+}
+
+.gitlab-mr-meta {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 5px;
+	font-size: 0.9em;
+	color: var(--text-muted);
+}
+
+.gitlab-mr-state {
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 3px;
+	font-size: 0.85em;
+}
+
+.gitlab-mr-state-opened {
+	background-color: #2da44e;
+	color: white;
+}
+
+.gitlab-mr-state-merged {
+	background-color: #8250df;
+	color: white;
+}
+
+.gitlab-mr-state-closed {
+	background-color: #cf222e;
+	color: white;
+}
+
+.gitlab-mr-branches {
+	font-family: var(--font-monospace);
+	font-size: 0.85em;
+	color: var(--text-muted);
+	margin-bottom: 5px;
+}
+
+.gitlab-mr-labels {
+	display: flex;
+	gap: 5px;
+	flex-wrap: wrap;
+	margin-bottom: 5px;
+}
+
+.gitlab-label {
+	padding: 2px 8px;
+	background-color: var(--background-modifier-border);
+	border-radius: 3px;
+	font-size: 0.8em;
+	color: var(--text-muted);
+}
+
+.gitlab-mr-dates {
+	font-size: 0.8em;
+	color: var(--text-faint);
+}
+
+.gitlab-loading {
+	text-align: center;
+	padding: 20px;
+	color: var(--text-muted);
+}
+
+.gitlab-error {
+	text-align: center;
+	padding: 20px;
+	color: var(--text-error);
+}
+
+.gitlab-empty {
+	text-align: center;
+	padding: 20px;
+	color: var(--text-muted);
+}
+
+.gitlab-warning {
+	padding: 15px;
+	background-color: var(--background-modifier-error);
+	border-radius: 5px;
+	color: var(--text-error);
+	text-align: center;
+	margin: 20px 0;
+}
+
+/* Branch selector modal */
+.branch-item {
+	padding: 8px;
+	cursor: pointer;
+	border-radius: 3px;
+}
+
+.branch-item:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.branch-item a {
+	text-decoration: none;
+	color: var(--text-normal);
+}
