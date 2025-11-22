@@ -39,6 +39,21 @@ pnpm lint          # ESLint ausführen
 pnpm lint:fix      # Auto-fix Probleme
 ```
 
+## Release
+
+Um eine neue Version zu veröffentlichen:
+
+1. Aktualisiere `version` in `manifest.json` und `package.json`
+2. Erstelle einen Git Tag:
+   ```bash
+   git tag -a 1.0.0 -m "Release 1.0.0"
+   git push origin 1.0.0
+   ```
+3. Die GitHub Action erstellt automatisch einen Draft Release
+4. Bearbeite den Release auf GitHub und veröffentliche ihn
+
+Die Release-Dateien (`main.js`, `manifest.json`, `styles.css`) werden automatisch zum Release hinzugefügt.
+
 ## Konfiguration
 
 1. Öffne die Plugin-Einstellungen
