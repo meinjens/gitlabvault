@@ -32,6 +32,13 @@ pnpm test:ui       # UI Mode
 pnpm test:coverage # With coverage
 ```
 
+### Linting
+
+```bash
+pnpm lint          # ESLint ausführen
+pnpm lint:fix      # Auto-fix Probleme
+```
+
 ## Konfiguration
 
 1. Öffne die Plugin-Einstellungen
