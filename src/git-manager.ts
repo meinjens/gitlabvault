@@ -138,4 +138,46 @@ export class GitManager {
 			throw error;
 		}
 	}
+
+	async checkGitignore(): Promise<{ exists: boolean; hasWorkspaceJson: boolean }> {
+		const fs = require('fs').promises;
+		const path = require('path');
+		const gitignorePath = path.join(this.vaultPath, '.gitignore');
+
+		try {
+			const content = await fs.readFile(gitignorePath, 'utf-8');
+			const hasWorkspaceJson = content.includes('.obsidian/workspace.json') ||
+									  content.includes('.obsidian/workspace*.json');
+			return { exists: true, hasWorkspaceJson };
+		} catch {
+			return { exists: false, hasWorkspaceJson: false };
+		}
+	}
+
+	async addToGitignore(entry: string): Promise<void> {
+		const fs = require('fs').promises;
+		const path = require('path');
+		const gitignorePath = path.join(this.vaultPath, '.gitignore');
+
+		try {
+			let content = '';
+			try {
+				content = await fs.readFile(gitignorePath, 'utf-8');
+			} catch {
+				// .gitignore doesn't exist yet
+			}
+
+			if (!content.endsWith('\n') && content.length > 0) {
+				content += '\n';
+			}
+
+			content += `\n# Obsidian workspace (persönliche Einstellungen)\n${entry}\n`;
+			await fs.writeFile(gitignorePath, content, 'utf-8');
+			new Notice('.gitignore aktualisiert');
+		} catch (error) {
+			console.error('Failed to update .gitignore:', error);
+			new Notice('Fehler beim Aktualisieren der .gitignore');
+			throw error;
+		}
+	}
 }

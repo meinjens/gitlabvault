@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
-import GitLabPlugin from './main';
+import type GitLabPlugin from './main';
 
 export interface GitLabPluginSettings {
 	gitlabUrl: string;
@@ -21,12 +21,15 @@ export class GitLabSettingTab extends PluginSettingTab {
 		this.plugin = plugin;
 	}
 
-	display(): void {
+	async display(): Promise<void> {
 		const { containerEl } = this;
 
 		containerEl.empty();
 
 		containerEl.createEl('h2', { text: 'GitLabVault Einstellungen' });
+
+		// Check .gitignore
+		await this.checkGitignoreStatus(containerEl);
 
 		new Setting(containerEl)
 			.setName('GitLab URL')
@@ -72,5 +75,47 @@ export class GitLabSettingTab extends PluginSettingTab {
 			text: 'Das Plugin verwendet das Git Repository in deinem Vault Verzeichnis. ' +
 				'Stelle sicher, dass du bereits ein Git Repository initialisiert hast.'
 		});
+	}
+
+	async checkGitignoreStatus(containerEl: HTMLElement): Promise<void> {
+		const status = await this.plugin.gitManager.checkGitignore();
+
+		if (!status.hasWorkspaceJson) {
+			const warningDiv = containerEl.createDiv({ cls: 'gitlabvault-warning' });
+
+			warningDiv.createEl('h3', {
+				text: '⚠️ .gitignore Warnung',
+				cls: 'gitlabvault-warning-title'
+			});
+
+			warningDiv.createEl('p', {
+				text: 'Die Datei .obsidian/workspace.json sollte in der .gitignore stehen, ' +
+					  'da sie persönliche Workspace-Einstellungen enthält und nicht ins Repository sollte.',
+			});
+
+			const buttonContainer = warningDiv.createDiv({ cls: 'gitlabvault-warning-actions' });
+
+			const fixButton = buttonContainer.createEl('button', {
+				text: '.gitignore automatisch aktualisieren',
+				cls: 'mod-cta'
+			});
+
+			fixButton.addEventListener('click', async () => {
+				try {
+					await this.plugin.gitManager.addToGitignore('.obsidian/workspace.json');
+					this.display(); // Refresh display
+				} catch (error) {
+					console.error('Failed to update .gitignore:', error);
+				}
+			});
+
+			const ignoreButton = buttonContainer.createEl('button', {
+				text: 'Später',
+			});
+
+			ignoreButton.addEventListener('click', () => {
+				warningDiv.remove();
+			});
+		}
 	}
 }

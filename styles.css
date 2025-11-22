@@ -154,3 +154,33 @@
 	text-decoration: none;
 	color: var(--text-normal);
 }
+
+/* Settings warnings */
+.gitlabvault-warning {
+	padding: 16px;
+	margin: 16px 0;
+	background-color: var(--background-modifier-error);
+	border-left: 4px solid var(--text-error);
+	border-radius: 4px;
+}
+
+.gitlabvault-warning-title {
+	margin: 0 0 12px 0;
+	color: var(--text-error);
+	font-size: 1.1em;
+}
+
+.gitlabvault-warning p {
+	margin: 0 0 12px 0;
+	color: var(--text-normal);
+}
+
+.gitlabvault-warning-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.gitlabvault-warning-actions button {
+	padding: 6px 12px;
+	cursor: pointer;
+}
