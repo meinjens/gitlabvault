@@ -47,4 +47,6 @@ GitLabVault verbindet deinen Obsidian Vault mit GitLab - verwalte Merge Requests
 
 ## Lizenz
 
-MIT
+MIT License - siehe [LICENSE](LICENSE) Datei für Details.
+
+Copyright (c) 2025 Jens Meinecke
