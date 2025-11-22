@@ -23,6 +23,15 @@ GitLabVault verbindet deinen Obsidian Vault mit GitLab - verwalte Merge Requests
 3. `pnpm run dev`
 4. Aktiviere das Plugin in Obsidian
 
+### Tests
+
+```bash
+pnpm test          # Watch Mode
+pnpm test:run      # Run once
+pnpm test:ui       # UI Mode
+pnpm test:coverage # With coverage
+```
+
 ## Konfiguration
 
 1. Öffne die Plugin-Einstellungen

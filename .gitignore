@@ -13,6 +13,10 @@ yarn.lock
 main.js
 *.js.map
 
+# Test coverage
+coverage/
+.vitest/
+
 # macOS
 .DS_Store
 
