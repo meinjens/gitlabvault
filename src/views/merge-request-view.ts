@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, DropdownComponent, Notice } from 'obsidian';
+import { ItemView, WorkspaceLeaf, DropdownComponent } from 'obsidian';
 import GitLabPlugin from '../main';
 import { MergeRequest } from '../types';
 
@@ -80,7 +80,7 @@ export class MergeRequestView extends ItemView {
 		try {
 			this.mergeRequests = await this.plugin.gitlabClient.getMergeRequests(this.currentState);
 			this.renderMergeRequests();
-		} catch (error) {
+		} catch {
 			this.mrListContainer.empty();
 			this.mrListContainer.createDiv({
 				text: 'Fehler beim Laden der Merge Requests',
@@ -114,7 +114,7 @@ export class MergeRequestView extends ItemView {
 
 			const meta = mrItem.createDiv({ cls: 'gitlab-mr-meta' });
 
-			const stateSpan = meta.createSpan({
+			meta.createSpan({
 				text: this.getStateText(mr.state),
 				cls: `gitlab-mr-state gitlab-mr-state-${mr.state}`
 			});

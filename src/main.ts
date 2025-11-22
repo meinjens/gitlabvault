@@ -50,7 +50,7 @@ export default class GitLabPlugin extends Plugin {
 			this.settings.projectId
 		);
 
-		const vaultPath = (this.app.vault.adapter as any).basePath;
+		const vaultPath = (this.app.vault.adapter as { basePath: string }).basePath;
 		this.gitManager = new GitManager(vaultPath);
 	}
 

@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GitManager } from './git-manager';
-import type { StatusResult } from 'simple-git';
 
 // Mock simple-git
 const mockGit = {

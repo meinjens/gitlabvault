@@ -15,7 +15,7 @@ export class GitManager {
 		try {
 			await this.git.status();
 			return true;
-		} catch (error) {
+		} catch {
 			return false;
 		}
 	}
@@ -24,7 +24,7 @@ export class GitManager {
 		try {
 			await this.git.init();
 			new Notice('Git Repository initialisiert');
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Failed to initialize git repository:', error);
 			new Notice('Fehler beim Initialisieren des Git Repository');
 			throw error;
