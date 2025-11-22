@@ -23,20 +23,20 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.10.0",
+    "@types/node": "^20.19.25",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
     "@typescript-eslint/parser": "^8.47.0",
     "@vitest/ui": "^4.0.13",
     "builtin-modules": "^3.3.0",
-    "esbuild": "^0.19.8",
+    "esbuild": "^0.27.0",
     "eslint": "^9.39.1",
     "obsidian": "latest",
-    "tslib": "^2.6.2",
-    "typescript": "^5.3.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.13"
   },
   "dependencies": {
-    "@gitbeaker/rest": "^39.0.0",
-    "simple-git": "^3.21.0"
+    "@gitbeaker/rest": "^39.34.3",
+    "simple-git": "^3.30.0"
   }
 }
