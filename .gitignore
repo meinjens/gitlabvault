@@ -13,6 +13,9 @@ yarn.lock
 main.js
 *.js.map
 
+# Obsidian
+data.json
+
 # Test coverage
 coverage/
 .vitest/
