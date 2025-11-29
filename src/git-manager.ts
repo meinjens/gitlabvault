@@ -154,8 +154,8 @@ export class GitManager {
 
 		try {
 			const content = await fs.readFile(gitignorePath, 'utf-8');
-			const lines = content.split('\n').map(line => line.trim());
-			const hasWorkspaceJson = lines.some(line => validEntries.includes(line));
+			const lines = content.split('\n').map((line: string) => line.trim());
+			const hasWorkspaceJson = lines.some((line: string) => validEntries.includes(line));
 
 			return { exists: true, hasWorkspaceJson };
 		} catch {
