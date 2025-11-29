@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, DropdownComponent } from 'obsidian';
+import { ItemView, WorkspaceLeaf, DropdownComponent, FileSystemAdapter } from 'obsidian';
 import GitLabPlugin from '../main';
 import { MergeRequest, MergeRequestDetails } from '../types';
 import { CreateMergeRequestModal } from '../modals/create-merge-request-modal';
@@ -85,7 +85,9 @@ export class MergeRequestView extends ItemView {
 			.addOption('all', 'Alle')
 			.setValue(this.currentState)
 			.onChange(async (value) => {
-				this.currentState = value as any;
+				if (value === 'opened' || value === 'closed' || value === 'merged' || value === 'all') {
+					this.currentState = value;
+				}
 				await this.loadAndRenderMergeRequests();
 			});
 
@@ -348,7 +350,8 @@ export class MergeRequestView extends ItemView {
 	async handleCheckout() {
 		if (!this.selectedMR) return;
 
-		const workspacePath = (this.app.vault.adapter as any).basePath;
+		const adapter = this.app.vault.adapter;
+		const workspacePath = adapter instanceof FileSystemAdapter ? adapter.getBasePath() : '';
 		await this.plugin.gitlabClient.checkoutMergeRequest(this.selectedMR, workspacePath);
 	}
 
@@ -368,7 +371,8 @@ export class MergeRequestView extends ItemView {
 		branchName: string,
 		targetBranch: string
 	) {
-		const workspacePath = (this.app.vault.adapter as any).basePath;
+		const adapter = this.app.vault.adapter;
+		const workspacePath = adapter instanceof FileSystemAdapter ? adapter.getBasePath() : '';
 
 		// 1. Create and checkout new branch
 		const branchCreated = await this.plugin.gitlabClient.createBranchAndCheckout(
@@ -405,7 +409,8 @@ export class MergeRequestView extends ItemView {
 			return;
 		}
 
-		const workspacePath = (this.app.vault.adapter as any).basePath;
+		const adapter = this.app.vault.adapter;
+		const workspacePath = adapter instanceof FileSystemAdapter ? adapter.getBasePath() : '';
 		const success = await this.plugin.gitlabClient.createCommitAndPush(
 			commitMessage,
 			workspacePath
