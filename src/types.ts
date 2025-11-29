@@ -27,6 +27,34 @@ export interface MergeRequest {
 	}>;
 }
 
+export interface MergeRequestCommit {
+	id: string;
+	short_id: string;
+	title: string;
+	author_name: string;
+	created_at: string;
+	message: string;
+}
+
+export interface MergeRequestApproval {
+	user: {
+		name: string;
+		username: string;
+		avatar_url: string;
+	};
+	approved?: boolean;
+}
+
+export interface MergeRequestDetails extends MergeRequest {
+	commits?: MergeRequestCommit[];
+	approvals?: {
+		approved: boolean;
+		approved_by: MergeRequestApproval[];
+		approvals_required: number;
+		approvals_left: number;
+	};
+}
+
 export interface GitStatus {
 	branch: string;
 	tracking: string | null;
