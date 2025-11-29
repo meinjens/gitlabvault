@@ -144,10 +144,19 @@ export class GitManager {
 		const path = require('path');
 		const gitignorePath = path.join(this.vaultPath, '.gitignore');
 
+		const validEntries = [
+			'.obsidian/workspace.json',
+			'.obsidian/workspace*.json',
+			'.obsidian',
+			'.obsidian/',
+			'.obsidian/*'
+		];
+
 		try {
 			const content = await fs.readFile(gitignorePath, 'utf-8');
-			const hasWorkspaceJson = content.includes('.obsidian/workspace.json') ||
-									  content.includes('.obsidian/workspace*.json');
+			const lines = content.split('\n').map(line => line.trim());
+			const hasWorkspaceJson = lines.some(line => validEntries.includes(line));
+
 			return { exists: true, hasWorkspaceJson };
 		} catch {
 			return { exists: false, hasWorkspaceJson: false };
