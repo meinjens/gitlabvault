@@ -7,6 +7,32 @@
 	margin-bottom: 15px;
 }
 
+.gitlab-mr-header-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.gitlab-mr-header-top h2 {
+	margin: 0;
+}
+
+.gitlab-create-mr-button {
+	padding: 8px 16px;
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+	font-weight: 600;
+	transition: background-color 0.2s ease;
+}
+
+.gitlab-create-mr-button:hover {
+	background-color: var(--interactive-accent-hover);
+}
+
 .gitlab-mr-controls {
 	display: flex;
 	justify-content: space-between;
@@ -34,10 +60,13 @@
 	background-color: var(--background-secondary);
 	border-radius: 5px;
 	border-left: 3px solid var(--interactive-accent);
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
 .gitlab-mr-item:hover {
 	background-color: var(--background-secondary-alt);
+	transform: translateX(2px);
 }
 
 .gitlab-mr-item-header {
@@ -183,4 +212,198 @@
 .gitlabvault-warning-actions button {
 	padding: 6px 12px;
 	cursor: pointer;
+}
+
+/* Detail View */
+.gitlab-mr-detail-header {
+	margin-bottom: 20px;
+	padding-bottom: 15px;
+	border-bottom: 2px solid var(--background-modifier-border);
+}
+
+.gitlab-mr-detail-header h2 {
+	margin: 10px 0 0 0;
+	font-size: 1.3em;
+	color: var(--text-normal);
+}
+
+.gitlab-back-button {
+	padding: 6px 12px;
+	margin-bottom: 10px;
+	background-color: var(--background-secondary);
+	color: var(--text-normal);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 3px;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.gitlab-back-button:hover {
+	background-color: var(--background-secondary-alt);
+}
+
+.gitlab-mr-detail-content {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.gitlab-mr-detail-meta {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	font-size: 0.9em;
+}
+
+.gitlab-mr-detail-section {
+	padding: 15px;
+	background-color: var(--background-secondary);
+	border-radius: 5px;
+}
+
+.gitlab-mr-detail-section h3 {
+	margin: 0 0 12px 0;
+	font-size: 1em;
+	color: var(--text-normal);
+	font-weight: 600;
+}
+
+.gitlab-mr-description {
+	color: var(--text-muted);
+	line-height: 1.6;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+
+.gitlab-action-button {
+	margin-top: 10px;
+	padding: 6px 12px;
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+	font-weight: 500;
+	transition: background-color 0.2s ease;
+}
+
+.gitlab-action-button:hover {
+	background-color: var(--interactive-accent-hover);
+}
+
+.gitlab-commits-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.gitlab-commit-item {
+	padding: 10px;
+	background-color: var(--background-primary-alt);
+	border-radius: 3px;
+	border-left: 2px solid var(--background-modifier-border);
+}
+
+.gitlab-commit-title {
+	font-weight: 500;
+	color: var(--text-normal);
+	margin-bottom: 4px;
+}
+
+.gitlab-commit-meta {
+	font-size: 0.85em;
+	color: var(--text-muted);
+}
+
+.gitlab-commit-info {
+	font-family: var(--font-monospace);
+}
+
+.gitlab-approval-status {
+	margin-bottom: 10px;
+	padding: 8px 12px;
+	border-radius: 3px;
+	font-weight: 500;
+}
+
+.gitlab-approval-approved {
+	background-color: #2da44e;
+	color: white;
+}
+
+.gitlab-approval-pending {
+	background-color: var(--background-modifier-warning);
+	color: var(--text-warning);
+}
+
+.gitlab-approvers-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.gitlab-approver {
+	padding: 4px 10px;
+	background-color: var(--background-primary-alt);
+	border-radius: 3px;
+	font-size: 0.9em;
+	color: var(--text-muted);
+}
+
+/* Commit Section in Detail View */
+.gitlab-mr-detail-section.gitlab-commit-section {
+	background-color: var(--background-primary-alt);
+	border: 1px solid var(--background-modifier-border);
+}
+
+.gitlab-commit-input-container {
+	margin-bottom: 15px;
+}
+
+.gitlab-commit-input-container label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 500;
+	color: var(--text-normal);
+}
+
+.gitlab-commit-message-input {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 3px;
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+	font-family: var(--font-interface);
+	font-size: 0.9em;
+	resize: vertical;
+}
+
+.gitlab-commit-message-input:focus {
+	outline: none;
+	border-color: var(--interactive-accent);
+}
+
+.gitlab-commit-button-container {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.gitlab-commit-button {
+	padding: 8px 16px;
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+	font-weight: 600;
+	transition: background-color 0.2s ease;
+}
+
+.gitlab-commit-button:hover {
+	background-color: var(--interactive-accent-hover);
+}
+
+.gitlab-commit-button:active {
+	transform: scale(0.98);
 }
