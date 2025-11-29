@@ -1,4 +1,11 @@
-import { Gitlab } from '@gitbeaker/rest';
+import {
+	Gitlab,
+	type MergeRequestSchema,
+	type CommitSchema,
+	type AllMergeRequestsOptions,
+	type AcceptMergeRequestOptions,
+	type ApprovalStateSchema
+} from '@gitbeaker/rest';
 import { MergeRequest, MergeRequestDetails, MergeRequestCommit } from './types';
 import { Notice } from 'obsidian';
 import { exec } from 'child_process';
@@ -38,18 +45,19 @@ export class GitLabClient {
 		}
 
 		try {
-			const options: any = {
+			const options: AllMergeRequestsOptions & { projectId: string | number; withLabelsDetails?: false } = {
 				projectId: this.projectId,
 				scope: 'all',
+				withLabelsDetails: false,
 			};
 
 			if (state !== 'all') {
 				options.state = state;
 			}
 
-			const mrs = await this.api.MergeRequests.all(options);
+			const mrs = await this.api.MergeRequests.all(options) as MergeRequestSchema[];
 
-			return mrs as any as MergeRequest[];
+			return mrs as MergeRequest[];
 		} catch (error) {
 			console.error('Failed to fetch merge requests:', error);
 			new Notice('Fehler beim Laden der Merge Requests');
@@ -63,8 +71,8 @@ export class GitLabClient {
 		}
 
 		try {
-			const mr = await this.api.MergeRequests.show(this.projectId, iid);
-			return mr as any as MergeRequest;
+			const mr = await this.api.MergeRequests.show(this.projectId, iid) as MergeRequestSchema;
+			return mr as MergeRequest;
 		} catch (error) {
 			console.error('Failed to fetch merge request:', error);
 			new Notice('Fehler beim Laden des Merge Request');
@@ -78,13 +86,15 @@ export class GitLabClient {
 		}
 
 		try {
-			const mrs = await this.api.MergeRequests.all({
+			const options: AllMergeRequestsOptions & { projectId: string | number; withLabelsDetails?: false } = {
 				projectId: this.projectId,
 				search: query,
 				scope: 'all',
-			} as any);
+				withLabelsDetails: false,
+			};
+			const mrs = await this.api.MergeRequests.all(options) as MergeRequestSchema[];
 
-			return mrs as any as MergeRequest[];
+			return mrs as MergeRequest[];
 		} catch (error) {
 			console.error('Failed to search merge requests:', error);
 			new Notice('Fehler bei der Suche');
@@ -102,10 +112,7 @@ export class GitLabClient {
 		}
 
 		try {
-			const options: any = {
-				projectId: this.projectId,
-				mergeRequestIid: iid,
-			};
+			const options: AcceptMergeRequestOptions = {};
 
 			if (mergeCommitMessage) {
 				options.mergeCommitMessage = mergeCommitMessage;
@@ -136,27 +143,29 @@ export class GitLabClient {
 		}
 
 		try {
-			const mr = await this.api.MergeRequests.show(this.projectId, iid);
+			const mr = await this.api.MergeRequests.show(this.projectId, iid) as MergeRequestSchema;
 
 			const [commits, approvals] = await Promise.all([
 				this.api.Commits.all(this.projectId, {
-					refName: (mr as any).source_branch,
+					refName: mr.source_branch,
 					perPage: 100
-				}),
+				}) as Promise<CommitSchema[]>,
 				this.api.MergeRequestApprovals.showApprovalState(this.projectId, iid).catch(() => null)
 			]);
 
 			const details: MergeRequestDetails = {
-				...(mr as any as MergeRequest),
-				commits: commits as any as MergeRequestCommit[],
+				...(mr as MergeRequest),
+				commits: commits as MergeRequestCommit[],
 			};
 
 			if (approvals) {
+				const approvalState = approvals as ApprovalStateSchema;
+				const approvedRules = approvalState.rules?.filter(r => r.approved) || [];
 				details.approvals = {
-					approved: (approvals as any).approved || false,
-					approved_by: (approvals as any).approved_by || [],
-					approvals_required: (approvals as any).approvals_required || 0,
-					approvals_left: (approvals as any).approvals_left || 0,
+					approved: approvedRules.length > 0,
+					approved_by: [],
+					approvals_required: approvalState.rules?.length || 0,
+					approvals_left: approvalState.rules?.filter(r => !r.approved).length || 0,
 				};
 			}
 
@@ -219,8 +228,9 @@ export class GitLabClient {
 				}
 			);
 
-			new Notice(`Merge Request !${(mr as any).iid} erfolgreich erstellt`);
-			return mr as any as MergeRequest;
+			const mergeRequest = mr as MergeRequestSchema;
+			new Notice(`Merge Request !${mergeRequest.iid} erfolgreich erstellt`);
+			return mergeRequest as MergeRequest;
 		} catch (error) {
 			console.error('Failed to create merge request:', error);
 			new Notice(`Fehler beim Erstellen des Merge Request: ${error.message}`);

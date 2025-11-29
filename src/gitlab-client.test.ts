@@ -9,7 +9,7 @@ vi.mock('@gitbeaker/rest', () => {
 				all: vi.fn(),
 				show: vi.fn(),
 			};
-			constructor(config: any) {}
+			constructor(_config: Record<string, unknown>) {}
 		},
 	};
 });

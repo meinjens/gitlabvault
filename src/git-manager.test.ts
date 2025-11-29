@@ -37,7 +37,7 @@ describe('GitManager', () => {
 
 	describe('isRepository', () => {
 		it('should return true if git repository exists', async () => {
-			mockGit.status.mockResolvedValue({} as any);
+			mockGit.status.mockResolvedValue({} as Record<string, unknown>);
 
 			const result = await gitManager.isRepository();
 			expect(result).toBe(true);
@@ -64,8 +64,8 @@ describe('GitManager', () => {
 				isClean: () => false,
 			};
 
-			mockGit.status.mockResolvedValue(mockStatus as any);
-			mockGit.revparse.mockResolvedValue('main\n' as any);
+			mockGit.status.mockResolvedValue(mockStatus as Record<string, unknown>);
+			mockGit.revparse.mockResolvedValue('main\n');
 
 			const result = await gitManager.getStatus();
 
@@ -84,7 +84,7 @@ describe('GitManager', () => {
 				branches: {},
 				current: 'main',
 				detached: false,
-			} as any);
+			} as Record<string, unknown>);
 
 			const result = await gitManager.getBranches();
 			expect(result).toContain('main');
@@ -101,7 +101,7 @@ describe('GitManager', () => {
 
 	describe('getCurrentBranch', () => {
 		it('should return current branch name', async () => {
-			mockGit.revparse.mockResolvedValue('feature/test\n' as any);
+			mockGit.revparse.mockResolvedValue('feature/test\n');
 
 			const result = await gitManager.getCurrentBranch();
 			expect(result).toBe('feature/test');
@@ -117,8 +117,8 @@ describe('GitManager', () => {
 
 	describe('commit', () => {
 		it('should stage all files and commit', async () => {
-			mockGit.add.mockResolvedValue(undefined as any);
-			mockGit.commit.mockResolvedValue({} as any);
+			mockGit.add.mockResolvedValue(undefined);
+			mockGit.commit.mockResolvedValue({} as Record<string, unknown>);
 
 			await gitManager.commit('test commit');
 
@@ -129,7 +129,7 @@ describe('GitManager', () => {
 
 	describe('createBranch', () => {
 		it('should create a new branch', async () => {
-			mockGit.checkoutLocalBranch.mockResolvedValue(undefined as any);
+			mockGit.checkoutLocalBranch.mockResolvedValue(undefined);
 
 			await gitManager.createBranch('feature/new');
 
@@ -139,7 +139,7 @@ describe('GitManager', () => {
 
 	describe('switchBranch', () => {
 		it('should switch to existing branch', async () => {
-			mockGit.checkout.mockResolvedValue(undefined as any);
+			mockGit.checkout.mockResolvedValue(undefined);
 
 			await gitManager.switchBranch('main');
 

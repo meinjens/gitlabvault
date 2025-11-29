@@ -4,6 +4,9 @@ import { GitLabClient } from './gitlab-client';
 import { GitManager } from './git-manager';
 import { MergeRequestView, VIEW_TYPE_MERGE_REQUESTS } from './views/merge-request-view';
 import { GitStatusBar } from './ui/status-bar';
+import { CommitMessageModal } from './modals/commit-message-modal';
+import { BranchNameModal } from './modals/branch-name-modal';
+import { BranchSelectorModal } from './modals/branch-selector-modal';
 
 const GITLAB_ICON = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.387 9.452.045 13.587a.924.924 0 0 0 .331 1.023L12 23.054l11.624-8.443a.924.924 0 0 0 .331-1.024"/></svg>`;
 
@@ -191,119 +194,5 @@ export default class GitLabPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-	}
-}
-
-import { Modal, App, TextComponent } from 'obsidian';
-
-class CommitMessageModal extends Modal {
-	result: string;
-	onSubmit: (result: string) => void;
-
-	constructor(app: App, onSubmit: (result: string) => void) {
-		super(app);
-		this.onSubmit = onSubmit;
-	}
-
-	onOpen() {
-		const { contentEl } = this;
-
-		contentEl.createEl('h2', { text: 'Commit Message' });
-
-		const textComponent = new TextComponent(contentEl);
-		textComponent.inputEl.style.width = '100%';
-		textComponent.inputEl.placeholder = 'Enter commit message';
-		textComponent.onChange((value) => {
-			this.result = value;
-		});
-
-		textComponent.inputEl.addEventListener('keydown', (evt: KeyboardEvent) => {
-			if (evt.key === 'Enter') {
-				evt.preventDefault();
-				this.close();
-				this.onSubmit(this.result);
-			}
-		});
-
-		setTimeout(() => textComponent.inputEl.focus(), 10);
-	}
-
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
-}
-
-class BranchNameModal extends Modal {
-	result: string;
-	onSubmit: (result: string) => void;
-
-	constructor(app: App, onSubmit: (result: string) => void) {
-		super(app);
-		this.onSubmit = onSubmit;
-	}
-
-	onOpen() {
-		const { contentEl } = this;
-
-		contentEl.createEl('h2', { text: 'Branch Name' });
-
-		const textComponent = new TextComponent(contentEl);
-		textComponent.inputEl.style.width = '100%';
-		textComponent.inputEl.placeholder = 'Enter branch name';
-		textComponent.onChange((value) => {
-			this.result = value;
-		});
-
-		textComponent.inputEl.addEventListener('keydown', (evt: KeyboardEvent) => {
-			if (evt.key === 'Enter') {
-				evt.preventDefault();
-				this.close();
-				this.onSubmit(this.result);
-			}
-		});
-
-		setTimeout(() => textComponent.inputEl.focus(), 10);
-	}
-
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
-}
-
-class BranchSelectorModal extends Modal {
-	branches: string[];
-	currentBranch: string;
-	onSubmit: (result: string | null) => void;
-
-	constructor(app: App, branches: string[], currentBranch: string, onSubmit: (result: string | null) => void) {
-		super(app);
-		this.branches = branches;
-		this.currentBranch = currentBranch;
-		this.onSubmit = onSubmit;
-	}
-
-	onOpen() {
-		const { contentEl } = this;
-
-		contentEl.createEl('h2', { text: 'Select Branch' });
-
-		this.branches.forEach(branch => {
-			const div = contentEl.createDiv({ cls: 'branch-item' });
-			if (branch === this.currentBranch) {
-				div.createSpan({ text: '* ' });
-			}
-			const link = div.createEl('a', { text: branch });
-			link.addEventListener('click', () => {
-				this.close();
-				this.onSubmit(branch);
-			});
-		});
-	}
-
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
 	}
 }
