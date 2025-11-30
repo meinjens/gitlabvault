@@ -29,7 +29,8 @@ export class CommitMessageModal extends Modal {
 			}
 		});
 
-		setTimeout(() => textComponent.inputEl.focus(), 10);
+		// Focus input after modal is fully rendered
+		textComponent.inputEl.focus();
 	}
 
 	onClose() {

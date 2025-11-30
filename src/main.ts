@@ -85,10 +85,15 @@ export default class GitLabPlugin extends Plugin {
 			id: 'git-commit',
 			name: 'Git: Commit',
 			callback: async () => {
-				const message = await this.promptForCommitMessage();
-				if (message) {
-					await this.gitManager.commit(message);
-					this.statusBar.update();
+				try {
+					const message = await this.promptForCommitMessage();
+					if (message) {
+						await this.gitManager.commit(message);
+						this.statusBar.update();
+					}
+				} catch (error) {
+					console.error('Git commit failed:', error);
+					new Notice('Commit fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
 				}
 			}
 		});
@@ -97,8 +102,13 @@ export default class GitLabPlugin extends Plugin {
 			id: 'git-push',
 			name: 'Git: Push',
 			callback: async () => {
-				await this.gitManager.push();
-				this.statusBar.update();
+				try {
+					await this.gitManager.push();
+					this.statusBar.update();
+				} catch (error) {
+					console.error('Git push failed:', error);
+					new Notice('Push fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
+				}
 			}
 		});
 
@@ -106,8 +116,13 @@ export default class GitLabPlugin extends Plugin {
 			id: 'git-pull',
 			name: 'Git: Pull',
 			callback: async () => {
-				await this.gitManager.pull();
-				this.statusBar.update();
+				try {
+					await this.gitManager.pull();
+					this.statusBar.update();
+				} catch (error) {
+					console.error('Git pull failed:', error);
+					new Notice('Pull fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
+				}
 			}
 		});
 
@@ -115,20 +130,25 @@ export default class GitLabPlugin extends Plugin {
 			id: 'git-switch-branch',
 			name: 'Git: Switch Branch',
 			callback: async () => {
-				const branches = await this.gitManager.getBranches();
-				const currentBranch = await this.gitManager.getCurrentBranch();
+				try {
+					const branches = await this.gitManager.getBranches();
+					const currentBranch = await this.gitManager.getCurrentBranch();
 
-				const branchSelector = await this.app.vault.adapter.read('.git/HEAD')
-					.then(() => {
-						return this.showBranchSelector(branches, currentBranch);
-					})
-					.catch(() => {
-						return null;
-					});
+					const isRepo = await this.gitManager.isRepository();
+					if (!isRepo) {
+						new Notice('Kein Git Repository gefunden');
+						return;
+					}
 
-				if (branchSelector) {
-					await this.gitManager.switchBranch(branchSelector);
-					this.statusBar.update();
+					const branchSelector = await this.showBranchSelector(branches, currentBranch);
+
+					if (branchSelector) {
+						await this.gitManager.switchBranch(branchSelector);
+						this.statusBar.update();
+					}
+				} catch (error) {
+					console.error('Git switch branch failed:', error);
+					new Notice('Branch-Wechsel fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
 				}
 			}
 		});
@@ -137,10 +157,15 @@ export default class GitLabPlugin extends Plugin {
 			id: 'git-create-branch',
 			name: 'Git: Create Branch',
 			callback: async () => {
-				const branchName = await this.promptForBranchName();
-				if (branchName) {
-					await this.gitManager.createBranch(branchName);
-					this.statusBar.update();
+				try {
+					const branchName = await this.promptForBranchName();
+					if (branchName) {
+						await this.gitManager.createBranch(branchName);
+						this.statusBar.update();
+					}
+				} catch (error) {
+					console.error('Git create branch failed:', error);
+					new Notice('Branch-Erstellung fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
 				}
 			}
 		});
