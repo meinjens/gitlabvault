@@ -7,6 +7,7 @@ import { GitStatusBar } from './ui/status-bar';
 import { CommitMessageModal } from './modals/commit-message-modal';
 import { BranchNameModal } from './modals/branch-name-modal';
 import { BranchSelectorModal } from './modals/branch-selector-modal';
+import { registerAllCommands } from './commands';
 
 const GITLAB_ICON = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.387 9.452.045 13.587a.924.924 0 0 0 .331 1.023L12 23.054l11.624-8.443a.924.924 0 0 0 .331-1.024"/></svg>`;
 
@@ -40,7 +41,7 @@ export default class GitLabPlugin extends Plugin {
 			window.setInterval(() => this.statusBar.update(), 10000)
 		);
 
-		this.registerCommands();
+		registerAllCommands(this);
 
 		this.addSettingTab(new GitLabSettingTab(this.app, this));
 	}
@@ -72,104 +73,6 @@ export default class GitLabPlugin extends Plugin {
 		}
 	}
 
-	registerCommands() {
-		this.addCommand({
-			id: 'show-merge-requests',
-			name: 'Show Merge Requests',
-			callback: () => {
-				this.activateMergeRequestView();
-			}
-		});
-
-		this.addCommand({
-			id: 'git-commit',
-			name: 'Git: Commit',
-			callback: async () => {
-				try {
-					const message = await this.promptForCommitMessage();
-					if (message) {
-						await this.gitManager.commit(message);
-						this.statusBar.update();
-					}
-				} catch (error) {
-					console.error('Git commit failed:', error);
-					new Notice('Commit fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
-				}
-			}
-		});
-
-		this.addCommand({
-			id: 'git-push',
-			name: 'Git: Push',
-			callback: async () => {
-				try {
-					await this.gitManager.push();
-					this.statusBar.update();
-				} catch (error) {
-					console.error('Git push failed:', error);
-					new Notice('Push fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
-				}
-			}
-		});
-
-		this.addCommand({
-			id: 'git-pull',
-			name: 'Git: Pull',
-			callback: async () => {
-				try {
-					await this.gitManager.pull();
-					this.statusBar.update();
-				} catch (error) {
-					console.error('Git pull failed:', error);
-					new Notice('Pull fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
-				}
-			}
-		});
-
-		this.addCommand({
-			id: 'git-switch-branch',
-			name: 'Git: Switch Branch',
-			callback: async () => {
-				try {
-					const branches = await this.gitManager.getBranches();
-					const currentBranch = await this.gitManager.getCurrentBranch();
-
-					const isRepo = await this.gitManager.isRepository();
-					if (!isRepo) {
-						new Notice('Kein Git Repository gefunden');
-						return;
-					}
-
-					const branchSelector = await this.showBranchSelector(branches, currentBranch);
-
-					if (branchSelector) {
-						await this.gitManager.switchBranch(branchSelector);
-						this.statusBar.update();
-					}
-				} catch (error) {
-					console.error('Git switch branch failed:', error);
-					new Notice('Branch-Wechsel fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
-				}
-			}
-		});
-
-		this.addCommand({
-			id: 'git-create-branch',
-			name: 'Git: Create Branch',
-			callback: async () => {
-				try {
-					const branchName = await this.promptForBranchName();
-					if (branchName) {
-						await this.gitManager.createBranch(branchName);
-						this.statusBar.update();
-					}
-				} catch (error) {
-					console.error('Git create branch failed:', error);
-					new Notice('Branch-Erstellung fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
-				}
-			}
-		});
-	}
 
 	async activateMergeRequestView() {
 		const { workspace } = this.app;
