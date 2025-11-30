@@ -1,4 +1,4 @@
-import { Plugin, WorkspaceLeaf, addIcon } from 'obsidian';
+import { Plugin, WorkspaceLeaf, addIcon, FileSystemAdapter, Notice } from 'obsidian';
 import { GitLabSettingTab, GitLabPluginSettings, DEFAULT_SETTINGS } from './settings';
 import { GitLabClient } from './gitlab-client';
 import { GitManager } from './git-manager';
@@ -33,7 +33,12 @@ export default class GitLabPlugin extends Plugin {
 		});
 
 		this.statusBar = new GitStatusBar(this.addStatusBarItem(), this.gitManager);
-		this.statusBar.start();
+
+		// Update status bar immediately and register interval for periodic updates
+		this.statusBar.update();
+		this.registerInterval(
+			window.setInterval(() => this.statusBar.update(), 10000)
+		);
 
 		this.registerCommands();
 
@@ -41,9 +46,7 @@ export default class GitLabPlugin extends Plugin {
 	}
 
 	onunload() {
-		if (this.statusBar) {
-			this.statusBar.stop();
-		}
+		// Cleanup is handled automatically by registerInterval
 	}
 
 	initializeClients() {
@@ -53,7 +56,12 @@ export default class GitLabPlugin extends Plugin {
 			this.settings.projectId
 		);
 
-		const vaultPath = (this.app.vault.adapter as unknown as { basePath: string }).basePath;
+		if (!(this.app.vault.adapter instanceof FileSystemAdapter)) {
+			new Notice('GitLabVault requires a file system vault');
+			return;
+		}
+
+		const vaultPath = this.app.vault.adapter.getBasePath();
 		this.gitManager = new GitManager(vaultPath);
 	}
 

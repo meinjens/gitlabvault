@@ -4,7 +4,6 @@ import { GitStatus } from '../types';
 export class GitStatusBar {
 	private statusBarItem: HTMLElement;
 	private gitManager: GitManager;
-	private interval: number | null = null;
 
 	constructor(statusBarItem: HTMLElement, gitManager: GitManager) {
 		this.statusBarItem = statusBarItem;
@@ -14,20 +13,6 @@ export class GitStatusBar {
 	updateGitManager(gitManager: GitManager) {
 		this.gitManager = gitManager;
 		this.update();
-	}
-
-	start() {
-		this.update();
-		this.interval = window.setInterval(() => {
-			this.update();
-		}, 10000); // Update every 10 seconds
-	}
-
-	stop() {
-		if (this.interval) {
-			window.clearInterval(this.interval);
-			this.interval = null;
-		}
 	}
 
 	async update() {
