@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, DropdownComponent, FileSystemAdapter } from 'obsidian';
+import { ItemView, WorkspaceLeaf, DropdownComponent, FileSystemAdapter, Notice } from 'obsidian';
 import GitLabPlugin from '../main';
 import { MergeRequest, MergeRequestDetails } from '../types';
 import { CreateMergeRequestModal } from '../modals/create-merge-request-modal';
@@ -276,7 +276,14 @@ export class MergeRequestView extends ItemView {
 			const descSection = content.createDiv({ cls: 'gitlab-mr-detail-section' });
 			descSection.createEl('h3', { text: 'Beschreibung' });
 			const descContent = descSection.createDiv({ cls: 'gitlab-mr-description' });
-			descContent.innerHTML = this.selectedMR.description.replace(/\n/g, '<br>');
+			// Safely render description by creating text nodes and line breaks
+			const lines = this.selectedMR.description.split('\n');
+			lines.forEach((line, index) => {
+				descContent.createSpan({ text: line });
+				if (index < lines.length - 1) {
+					descContent.createEl('br');
+				}
+			});
 		}
 
 		if (this.selectedMR.commits && this.selectedMR.commits.length > 0) {
@@ -351,7 +358,12 @@ export class MergeRequestView extends ItemView {
 		if (!this.selectedMR) return;
 
 		const adapter = this.app.vault.adapter;
-		const workspacePath = adapter instanceof FileSystemAdapter ? adapter.getBasePath() : '';
+		if (!(adapter instanceof FileSystemAdapter)) {
+			new Notice('This operation requires a file system vault');
+			return;
+		}
+
+		const workspacePath = adapter.getBasePath();
 		await this.plugin.gitlabClient.checkoutMergeRequest(this.selectedMR, workspacePath);
 	}
 
@@ -372,7 +384,12 @@ export class MergeRequestView extends ItemView {
 		targetBranch: string
 	) {
 		const adapter = this.app.vault.adapter;
-		const workspacePath = adapter instanceof FileSystemAdapter ? adapter.getBasePath() : '';
+		if (!(adapter instanceof FileSystemAdapter)) {
+			new Notice('This operation requires a file system vault');
+			return;
+		}
+
+		const workspacePath = adapter.getBasePath();
 
 		// 1. Create and checkout new branch
 		const branchCreated = await this.plugin.gitlabClient.createBranchAndCheckout(
@@ -405,12 +422,17 @@ export class MergeRequestView extends ItemView {
 		const commitMessage = this.commitMessageInput.value.trim();
 
 		if (!commitMessage) {
-			// Show error - commit message is required
+			new Notice('Commit message is required');
 			return;
 		}
 
 		const adapter = this.app.vault.adapter;
-		const workspacePath = adapter instanceof FileSystemAdapter ? adapter.getBasePath() : '';
+		if (!(adapter instanceof FileSystemAdapter)) {
+			new Notice('This operation requires a file system vault');
+			return;
+		}
+
+		const workspacePath = adapter.getBasePath();
 		const success = await this.plugin.gitlabClient.createCommitAndPush(
 			commitMessage,
 			workspacePath
