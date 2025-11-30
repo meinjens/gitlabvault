@@ -17,7 +17,14 @@ export class BranchSelectorModal extends Modal {
 
 		contentEl.createEl('h2', { text: 'Select Branch' });
 
-		this.branches.forEach(branch => {
+		// Sort branches: main first, then others
+		const sortedBranches = [...this.branches].sort((a, b) => {
+			if (a === 'main' && b !== 'main') return -1;
+			if (a !== 'main' && b === 'main') return 1;
+			return 0;
+		});
+
+		sortedBranches.forEach(branch => {
 			const div = contentEl.createDiv({ cls: 'branch-item' });
 			if (branch === this.currentBranch) {
 				div.createSpan({ text: '* ' });

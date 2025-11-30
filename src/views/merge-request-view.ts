@@ -136,17 +136,7 @@ export class MergeRequestView extends ItemView {
 			return;
 		}
 
-		// Sort merge requests: main branch first, then others
-		const sortedMRs = [...this.mergeRequests].sort((a, b) => {
-			const aIsMain = a.target_branch === 'main';
-			const bIsMain = b.target_branch === 'main';
-
-			if (aIsMain && !bIsMain) return -1;
-			if (!aIsMain && bIsMain) return 1;
-			return 0;
-		});
-
-		sortedMRs.forEach(mr => {
+		this.mergeRequests.forEach(mr => {
 			const mrItem = mrListContainer.createDiv({ cls: 'gitlab-mr-item' });
 
 			mrItem.addEventListener('click', async (e) => {
