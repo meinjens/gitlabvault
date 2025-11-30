@@ -15,10 +15,34 @@ export const DEFAULT_SETTINGS: GitLabPluginSettings = {
 
 export class GitLabSettingTab extends PluginSettingTab {
 	plugin: GitLabPlugin;
+	private saveTimeout: number | null = null;
 
 	constructor(app: App, plugin: GitLabPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+	}
+
+	private debouncedSaveAndReinit(callback?: () => void) {
+		if (this.saveTimeout) {
+			window.clearTimeout(this.saveTimeout);
+		}
+		this.saveTimeout = window.setTimeout(async () => {
+			await this.plugin.saveSettings();
+			this.plugin.reinitializeClients();
+			if (callback) {
+				callback();
+			}
+			this.saveTimeout = null;
+		}, 500);
+	}
+
+	hide(): void {
+		// Clear pending save timeout when tab is closed
+		if (this.saveTimeout) {
+			window.clearTimeout(this.saveTimeout);
+			this.saveTimeout = null;
+		}
+		super.hide();
 	}
 
 	async display(): Promise<void> {
@@ -37,10 +61,9 @@ export class GitLabSettingTab extends PluginSettingTab {
 			.addText(text => text
 				.setPlaceholder('https://gitlab.com')
 				.setValue(this.plugin.settings.gitlabUrl)
-				.onChange(async (value) => {
+				.onChange((value) => {
 					this.plugin.settings.gitlabUrl = value;
-					await this.plugin.saveSettings();
-					this.plugin.reinitializeClients();
+					this.debouncedSaveAndReinit();
 				}));
 
 		new Setting(containerEl)
@@ -49,10 +72,9 @@ export class GitLabSettingTab extends PluginSettingTab {
 			.addText(text => {
 				text.setPlaceholder('glpat-...')
 					.setValue(this.plugin.settings.personalAccessToken)
-					.onChange(async (value) => {
+					.onChange((value) => {
 						this.plugin.settings.personalAccessToken = value;
-						await this.plugin.saveSettings();
-						this.plugin.reinitializeClients();
+						this.debouncedSaveAndReinit();
 					});
 				text.inputEl.type = 'password';
 			});
@@ -63,10 +85,9 @@ export class GitLabSettingTab extends PluginSettingTab {
 			.addText(text => text
 				.setPlaceholder('username/project')
 				.setValue(this.plugin.settings.projectId)
-				.onChange(async (value) => {
+				.onChange((value) => {
 					this.plugin.settings.projectId = value;
-					await this.plugin.saveSettings();
-					this.plugin.reinitializeClients();
+					this.debouncedSaveAndReinit();
 				}));
 
 		containerEl.createEl('h3', { text: 'Git Einstellungen' });
@@ -78,6 +99,10 @@ export class GitLabSettingTab extends PluginSettingTab {
 	}
 
 	async checkGitignoreStatus(containerEl: HTMLElement): Promise<void> {
+		if (!this.plugin.gitManager) {
+			return;
+		}
+
 		const status = await this.plugin.gitManager.checkGitignore();
 
 		if (!status.hasWorkspaceJson) {

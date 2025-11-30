@@ -8,10 +8,7 @@ import {
 } from '@gitbeaker/rest';
 import { MergeRequest, MergeRequestDetails, MergeRequestCommit } from './types';
 import { Notice } from 'obsidian';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
+import simpleGit from 'simple-git';
 
 export class GitLabClient {
 	private api: InstanceType<typeof Gitlab> | null = null;
@@ -179,30 +176,27 @@ export class GitLabClient {
 
 	async checkoutMergeRequest(mr: MergeRequest, workspacePath: string): Promise<boolean> {
 		try {
+			const git = simpleGit(workspacePath);
 			const sourceBranch = mr.source_branch;
 
 			new Notice(`Fetche Branch ${sourceBranch}...`);
 
 			try {
-				await execAsync(`git fetch origin ${sourceBranch}:${sourceBranch}`, {
-					cwd: workspacePath
-				});
-			} catch {
-				await execAsync(`git fetch origin ${sourceBranch}`, {
-					cwd: workspacePath
-				});
+				await git.fetch('origin', sourceBranch);
+			} catch (error) {
+				console.error('Failed to fetch branch:', error);
+				new Notice(`Fehler beim Fetchen des Branch: ${error instanceof Error ? error.message : String(error)}`);
+				return false;
 			}
 
 			new Notice(`Checke Branch ${sourceBranch} aus...`);
-			await execAsync(`git checkout ${sourceBranch}`, {
-				cwd: workspacePath
-			});
+			await git.checkout(sourceBranch);
 
 			new Notice(`Branch ${sourceBranch} erfolgreich ausgecheckt`);
 			return true;
 		} catch (error) {
 			console.error('Failed to checkout branch:', error);
-			new Notice(`Fehler beim Auschecken des Branch: ${error.message}`);
+			new Notice(`Fehler beim Auschecken des Branch: ${error instanceof Error ? error.message : String(error)}`);
 			return false;
 		}
 	}
@@ -243,24 +237,22 @@ export class GitLabClient {
 		workspacePath: string
 	): Promise<boolean> {
 		try {
+			const git = simpleGit(workspacePath);
+
 			new Notice(`Erstelle Branch ${branchName}...`);
 
 			// Create and checkout new branch
-			await execAsync(`git checkout -b ${branchName}`, {
-				cwd: workspacePath
-			});
+			await git.checkoutLocalBranch(branchName);
 
 			// Push to remote and set upstream
 			new Notice(`Pushe Branch ${branchName} zum Remote...`);
-			await execAsync(`git push -u origin ${branchName}`, {
-				cwd: workspacePath
-			});
+			await git.push('origin', branchName, ['--set-upstream']);
 
 			new Notice(`Branch ${branchName} erfolgreich erstellt, ausgecheckt und gepusht`);
 			return true;
 		} catch (error) {
 			console.error('Failed to create branch:', error);
-			new Notice(`Fehler beim Erstellen des Branch: ${error.message}`);
+			new Notice(`Fehler beim Erstellen des Branch: ${error instanceof Error ? error.message : String(error)}`);
 			return false;
 		}
 	}
@@ -270,29 +262,25 @@ export class GitLabClient {
 		workspacePath: string
 	): Promise<boolean> {
 		try {
+			const git = simpleGit(workspacePath);
+
 			new Notice('Erstelle Commit...');
 
 			// Stage all changes
-			await execAsync('git add .', {
-				cwd: workspacePath
-			});
+			await git.add('.');
 
 			// Create commit
-			await execAsync(`git commit -m "${message.replace(/"/g, '\\"')}"`, {
-				cwd: workspacePath
-			});
+			await git.commit(message);
 
 			// Push to remote
 			new Notice('Pushe Commit zum Remote...');
-			await execAsync('git push', {
-				cwd: workspacePath
-			});
+			await git.push();
 
 			new Notice('Commit erfolgreich erstellt und gepusht');
 			return true;
 		} catch (error) {
 			console.error('Failed to create commit:', error);
-			new Notice(`Fehler beim Erstellen des Commits: ${error.message}`);
+			new Notice(`Fehler beim Erstellen des Commits: ${error instanceof Error ? error.message : String(error)}`);
 			return false;
 		}
 	}

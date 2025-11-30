@@ -452,6 +452,7 @@ export class MergeRequestView extends ItemView {
 	}
 
 	async onClose() {
-		// Cleanup
+		// Cleanup DOM elements
+		this.container.empty();
 	}
 }
