@@ -4,6 +4,7 @@ import { GitLabClient } from './gitlab-client';
 import { GitManager } from './git-manager';
 import { MergeRequestView, VIEW_TYPE_MERGE_REQUESTS } from './views/merge-request-view';
 import { GitStatusBar } from './ui/status-bar';
+import { GitignoreStatusBar } from './ui/gitignore-status-bar';
 import { CommitMessageModal } from './modals/commit-message-modal';
 import { BranchNameModal } from './modals/branch-name-modal';
 import { BranchSelectorModal } from './modals/branch-selector-modal';
@@ -18,6 +19,7 @@ export default class GitLabPlugin extends Plugin {
 	gitlabClient: GitLabClient;
 	gitManager: GitManager;
 	statusBar: GitStatusBar;
+	gitignoreStatusBar: GitignoreStatusBar;
 
 	async onload() {
 		await this.loadSettings();
@@ -36,11 +38,22 @@ export default class GitLabPlugin extends Plugin {
 		});
 
 		this.statusBar = new GitStatusBar(this.addStatusBarItem(), this.gitManager);
+		this.gitignoreStatusBar = new GitignoreStatusBar(
+			this.addStatusBarItem(),
+			this.gitManager,
+			async () => {
+				await this.fixGitignore();
+			}
+		);
 
-		// Update status bar immediately and register interval for periodic updates
+		// Update status bars immediately and register interval for periodic updates
 		this.statusBar.update();
+		this.gitignoreStatusBar.update();
 		this.registerInterval(
-			window.setInterval(() => this.statusBar.update(), 10000)
+			window.setInterval(() => {
+				this.statusBar.update();
+				this.gitignoreStatusBar.update();
+			}, 10000)
 		);
 
 		registerAllCommands(this);
@@ -72,6 +85,20 @@ export default class GitLabPlugin extends Plugin {
 		this.initializeClients();
 		if (this.statusBar) {
 			this.statusBar.updateGitManager(this.gitManager);
+		}
+		if (this.gitignoreStatusBar) {
+			this.gitignoreStatusBar.updateGitManager(this.gitManager);
+		}
+	}
+
+	async fixGitignore() {
+		try {
+			await this.gitManager.ensureGitignore();
+			this.gitignoreStatusBar.update();
+			this.statusBar.update();
+		} catch (error) {
+			console.error('Failed to fix .gitignore:', error);
+			new Notice('Fehler beim Reparieren der .gitignore');
 		}
 	}
 
