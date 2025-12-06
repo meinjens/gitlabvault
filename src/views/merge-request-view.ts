@@ -72,6 +72,39 @@ export class MergeRequestView extends ItemView {
 			this.openCreateMRModal();
 		});
 
+		// Git Commands Toolbar
+		const toolbar = this.container.createDiv({ cls: 'gitlab-git-toolbar' });
+
+		const commitBtn = toolbar.createEl('button', { text: 'Commit', cls: 'gitlab-toolbar-button' });
+		commitBtn.addEventListener('click', async () => {
+			await this.handleGitCommit();
+		});
+
+		const pushBtn = toolbar.createEl('button', { text: 'Push', cls: 'gitlab-toolbar-button' });
+		pushBtn.addEventListener('click', async () => {
+			await this.handleGitPush();
+		});
+
+		const pullBtn = toolbar.createEl('button', { text: 'Pull', cls: 'gitlab-toolbar-button' });
+		pullBtn.addEventListener('click', async () => {
+			await this.handleGitPull();
+		});
+
+		const switchBranchBtn = toolbar.createEl('button', { text: 'Branch wechseln', cls: 'gitlab-toolbar-button' });
+		switchBranchBtn.addEventListener('click', async () => {
+			await this.handleSwitchBranch();
+		});
+
+		const createBranchBtn = toolbar.createEl('button', { text: 'Branch erstellen', cls: 'gitlab-toolbar-button' });
+		createBranchBtn.addEventListener('click', async () => {
+			await this.handleCreateBranch();
+		});
+
+		const checkoutMainBtn = toolbar.createEl('button', { text: 'Main', cls: 'gitlab-toolbar-button' });
+		checkoutMainBtn.addEventListener('click', async () => {
+			await this.handleCheckoutMain();
+		});
+
 		const controls = this.container.createDiv({ cls: 'gitlab-mr-controls' });
 
 		const filterContainer = controls.createDiv({ cls: 'gitlab-mr-filter' });
@@ -94,11 +127,6 @@ export class MergeRequestView extends ItemView {
 		const refreshButton = controls.createEl('button', { text: 'Aktualisieren' });
 		refreshButton.addEventListener('click', async () => {
 			await this.loadAndRenderMergeRequests();
-		});
-
-		const checkoutMainButton = controls.createEl('button', { text: 'Main auschecken' });
-		checkoutMainButton.addEventListener('click', async () => {
-			await this.handleCheckoutMain();
 		});
 
 		const mrListContainer = this.container.createDiv({ cls: 'gitlab-mr-list' });
@@ -379,6 +407,99 @@ export class MergeRequestView extends ItemView {
 		} catch (error) {
 			console.error('Failed to checkout main:', error);
 			new Notice('Fehler beim Wechsel zum main Branch: ' + (error instanceof Error ? error.message : String(error)));
+		}
+	}
+
+	async handleGitCommit() {
+		try {
+			const isRepo = await this.plugin.gitManager.isRepository();
+			if (!isRepo) {
+				new Notice('Kein Git Repository gefunden');
+				return;
+			}
+
+			const message = await this.plugin.promptForCommitMessage();
+			if (message) {
+				await this.plugin.gitManager.commit(message);
+				this.plugin.statusBar.update();
+			}
+		} catch (error) {
+			console.error('Git commit failed:', error);
+			new Notice('Commit fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
+		}
+	}
+
+	async handleGitPush() {
+		try {
+			const isRepo = await this.plugin.gitManager.isRepository();
+			if (!isRepo) {
+				new Notice('Kein Git Repository gefunden');
+				return;
+			}
+
+			await this.plugin.gitManager.push();
+			this.plugin.statusBar.update();
+		} catch (error) {
+			console.error('Git push failed:', error);
+			new Notice('Push fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
+		}
+	}
+
+	async handleGitPull() {
+		try {
+			const isRepo = await this.plugin.gitManager.isRepository();
+			if (!isRepo) {
+				new Notice('Kein Git Repository gefunden');
+				return;
+			}
+
+			await this.plugin.gitManager.pull();
+			this.plugin.statusBar.update();
+		} catch (error) {
+			console.error('Git pull failed:', error);
+			new Notice('Pull fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
+		}
+	}
+
+	async handleSwitchBranch() {
+		try {
+			const branches = await this.plugin.gitManager.getBranches();
+			const currentBranch = await this.plugin.gitManager.getCurrentBranch();
+
+			const isRepo = await this.plugin.gitManager.isRepository();
+			if (!isRepo) {
+				new Notice('Kein Git Repository gefunden');
+				return;
+			}
+
+			const branchSelector = await this.plugin.showBranchSelector(branches, currentBranch);
+
+			if (branchSelector) {
+				await this.plugin.gitManager.switchBranch(branchSelector);
+				this.plugin.statusBar.update();
+			}
+		} catch (error) {
+			console.error('Git switch branch failed:', error);
+			new Notice('Branch-Wechsel fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
+		}
+	}
+
+	async handleCreateBranch() {
+		try {
+			const isRepo = await this.plugin.gitManager.isRepository();
+			if (!isRepo) {
+				new Notice('Kein Git Repository gefunden');
+				return;
+			}
+
+			const branchName = await this.plugin.promptForBranchName();
+			if (branchName) {
+				await this.plugin.gitManager.createBranch(branchName);
+				this.plugin.statusBar.update();
+			}
+		} catch (error) {
+			console.error('Git create branch failed:', error);
+			new Notice('Branch-Erstellung fehlgeschlagen: ' + (error instanceof Error ? error.message : String(error)));
 		}
 	}
 
