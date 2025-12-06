@@ -13,8 +13,7 @@ export function createGitCheckoutMainCommand(plugin: GitLabPlugin): Command {
 					return;
 				}
 
-				await plugin.gitManager.switchBranch('main');
-				plugin.statusBar.update();
+				await plugin.handleBranchSwitch('main');
 			} catch (error) {
 				console.error('Git checkout main failed:', error);
 				new Notice('Fehler beim Wechsel zum main Branch: ' + (error instanceof Error ? error.message : String(error)));
