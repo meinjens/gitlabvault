@@ -43,10 +43,14 @@ export class GitignoreStatusBar {
 	render(gitignoreStatus: { exists: boolean; hasWorkspaceJson: boolean; hasDataJson: boolean }) {
 		const needsFix = !gitignoreStatus.exists || !gitignoreStatus.hasWorkspaceJson || !gitignoreStatus.hasDataJson;
 
+		// Reset classes
+		this.statusBarItem.removeClass('gitignore-status-warning');
+		this.statusBarItem.removeClass('gitignore-status-success');
+
 		if (needsFix) {
 			// Show red warning icon
 			this.statusBarItem.setText('⚠ .gitignore');
-			this.statusBarItem.style.color = '#ff6b6b';
+			this.statusBarItem.addClass('gitignore-status-warning');
 			this.statusBarItem.style.display = '';
 
 			const issues = [];
@@ -65,7 +69,7 @@ export class GitignoreStatusBar {
 		} else {
 			// Show green checkmark icon
 			this.statusBarItem.setText('✓ .gitignore');
-			this.statusBarItem.style.color = '#4ade80';
+			this.statusBarItem.addClass('gitignore-status-success');
 			this.statusBarItem.style.display = '';
 			this.statusBarItem.title = '.gitignore korrekt konfiguriert\n\nworkspace.json und data.json sind ausgeschlossen';
 		}

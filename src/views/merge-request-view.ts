@@ -422,47 +422,11 @@ export class MergeRequestView extends ItemView {
 			// Ensure .gitignore is correct (workspace.json and data.json excluded)
 			await this.plugin.gitManager.ensureGitignore();
 
-			// Check for uncommitted changes
-			const hasChanges = await this.plugin.gitManager.hasUncommittedChanges();
+			// Handle uncommitted changes
+			const shouldContinue = await this.plugin.handleUncommittedChanges();
 
-			if (hasChanges) {
-				const action = await this.plugin.promptForUncommittedChangesAction();
-
-				if (action === 'cancel') {
-					return;
-				}
-
-				if (action === 'discard') {
-					await this.plugin.gitManager.discardChanges();
-				} else if (action === 'commit-push') {
-					const message = await this.plugin.promptForCommitMessage();
-					if (!message) {
-						new Notice('Checkout abgebrochen');
-						return;
-					}
-					await this.plugin.gitManager.commitAndPush(message);
-				} else if (action === 'create-mr') {
-					const mrDetails = await this.plugin.promptForMergeRequestDetails();
-					if (!mrDetails) {
-						new Notice('Checkout abgebrochen');
-						return;
-					}
-
-					const workspacePath = adapter.getBasePath();
-					const commitMessage = mrDetails.title;
-
-					await this.plugin.gitlabClient.createMergeRequestFromUncommittedChanges(
-						mrDetails.branchName,
-						mrDetails.title,
-						mrDetails.description,
-						commitMessage,
-						mrDetails.targetBranch,
-						workspacePath
-					);
-
-					// Refresh MR list
-					await this.loadAndRenderMergeRequests();
-				}
+			if (!shouldContinue) {
+				return;
 			}
 
 			// Now checkout the MR branch
