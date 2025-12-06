@@ -90,25 +90,31 @@ Das Plugin ermöglicht dir, schnell zwischen verschiedenen Merge Requests zu wec
 graph TD
     A[Aktueller Branch] --> B[Änderungen durchführen]
     B --> C{Branch wechseln?}
-    C -->|Ja| D{Ungespeicherte<br/>Änderungen?}
-    D -->|Ja| E{Was tun?}
-    E -->|Neuen MR erstellen| F[Neuen Branch + MR anlegen]
-    E -->|Committen & Pushen| G[Git: Commit + Push]
-    E -->|Verwerfen| H[Änderungen verwerfen]
-    F --> I[MR auswählen]
-    G --> I
-    H --> I
-    I --> J[Branch wechseln]
-    J --> A
-    D -->|Nein| I
+    C -->|Ja| D[.gitignore Auto-Fix]
+    D --> E{Ungespeicherte<br/>Änderungen?}
+    E -->|Ja| F{Was tun?}
+    F -->|Neuen MR erstellen| G[Neuen Branch + MR anlegen]
+    F -->|Committen & Pushen| H[Git: Commit + Push]
+    F -->|Verwerfen| I{Wirklich<br/>verwerfen?}
+    I -->|Ja| J[Änderungen verwerfen]
+    I -->|Nein| K[Abgebrochen]
+    F -->|Abbrechen| K
+    G --> L[Zum Ziel-Branch wechseln]
+    H --> L
+    J --> L
+    K --> A
+    L --> A
+    E -->|Nein| L
     C -->|Nein| A
 
     style A fill:#e1f5ff
     style B fill:#e8f5e9
-    style D fill:#ffe1e1
     style E fill:#ffe1e1
-    style F fill:#fff4e1
-    style I fill:#e1f5ff
+    style F fill:#ffe1e1
+    style I fill:#ffcccc
+    style G fill:#fff4e1
+    style L fill:#e1f5ff
+    style K fill:#f0f0f0
 
     classDef action fill:#fff,stroke:#333,stroke-width:2px
 ```
@@ -121,11 +127,13 @@ Der Workflow basiert auf einem flexiblen Prinzip: **Unveröffentlichte Änderung
 
 1. **Änderungen durchführen**: Arbeite in deinem Vault auf einem beliebigen Branch (main oder Feature-Branch)
 2. **Branch wechseln**: Wähle einen MR aus der Liste oder wechsle zu einem anderen Branch
-3. **Änderungen behandeln**: Wenn du ungespeicherte Änderungen hast, hast du drei Optionen:
+3. **.gitignore Auto-Fix**: Das Plugin stellt automatisch sicher, dass sensible Dateien (workspace.json, data.json) ausgeschlossen sind
+4. **Änderungen behandeln**: Wenn du ungespeicherte Änderungen hast, hast du vier Optionen:
    - **Neuen MR erstellen**: Erstellt automatisch einen neuen Branch und Merge Request für deine Änderungen
    - **Committen & Pushen**: Speichert Änderungen im aktuellen Branch und lädt sie zu GitLab hoch
-   - **Verwerfen**: Verwirft alle ungespeicherten Änderungen
-4. **Weiterarbeiten**: Nach dem Branch-Wechsel kannst du im neuen Branch weiterarbeiten
+   - **Verwerfen**: Verwirft alle ungespeicherten Änderungen (mit Sicherheitsabfrage ⚠️)
+   - **Abbrechen**: Bricht den Branch-Wechsel ab und bleibt beim aktuellen Branch
+5. **Weiterarbeiten**: Nach dem Branch-Wechsel kannst du im neuen Branch weiterarbeiten
 
 **Vorteile:**
 
