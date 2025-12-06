@@ -96,6 +96,11 @@ export class MergeRequestView extends ItemView {
 			await this.loadAndRenderMergeRequests();
 		});
 
+		const checkoutMainButton = controls.createEl('button', { text: 'Main auschecken' });
+		checkoutMainButton.addEventListener('click', async () => {
+			await this.handleCheckoutMain();
+		});
+
 		const mrListContainer = this.container.createDiv({ cls: 'gitlab-mr-list' });
 
 		if (this.mergeRequests.length === 0) {
@@ -365,6 +370,16 @@ export class MergeRequestView extends ItemView {
 
 		const workspacePath = adapter.getBasePath();
 		await this.plugin.gitlabClient.checkoutMergeRequest(this.selectedMR, workspacePath);
+	}
+
+	async handleCheckoutMain() {
+		try {
+			await this.plugin.gitManager.switchBranch('main');
+			this.plugin.statusBar.update();
+		} catch (error) {
+			console.error('Failed to checkout main:', error);
+			new Notice('Fehler beim Wechsel zum main Branch: ' + (error instanceof Error ? error.message : String(error)));
+		}
 	}
 
 	openCreateMRModal() {
