@@ -82,6 +82,60 @@ Die Release-Dateien (`main.js`, `manifest.json`, `styles.css`) werden automatisc
 
 Alle Git-Commands sind auch über die Toolbar in der Merge Request View verfügbar.
 
+### Vereinfachter Workflow für Merge Requests
+
+Das Plugin ermöglicht dir, schnell zwischen verschiedenen Merge Requests zu wechseln, ohne manuell Git-Befehle ausführen zu müssen:
+
+```mermaid
+graph TD
+    A[Aktueller Branch] --> B[Änderungen durchführen]
+    B --> C{Branch wechseln?}
+    C -->|Ja| D{Ungespeicherte<br/>Änderungen?}
+    D -->|Ja| E{Was tun?}
+    E -->|Neuen MR erstellen| F[Neuen Branch + MR anlegen]
+    E -->|Committen & Pushen| G[Git: Commit + Push]
+    E -->|Verwerfen| H[Änderungen verwerfen]
+    F --> I[MR auswählen]
+    G --> I
+    H --> I
+    I --> J[Branch wechseln]
+    J --> A
+    D -->|Nein| I
+    C -->|Nein| A
+
+    style A fill:#e1f5ff
+    style B fill:#e8f5e9
+    style D fill:#ffe1e1
+    style E fill:#ffe1e1
+    style F fill:#fff4e1
+    style I fill:#e1f5ff
+
+    classDef action fill:#fff,stroke:#333,stroke-width:2px
+```
+
+**Workflow-Prinzip:**
+
+Der Workflow basiert auf einem flexiblen Prinzip: **Unveröffentlichte Änderungen können jederzeit in einem neuen Merge Request bereitgestellt werden**. Egal ob du auf dem Main Branch oder einem Feature-Branch arbeitest - du kannst deine Änderungen entweder direkt committen oder in einem neuen MR organisieren.
+
+**Typischer Arbeitsablauf:**
+
+1. **Änderungen durchführen**: Arbeite in deinem Vault auf einem beliebigen Branch (main oder Feature-Branch)
+2. **Branch wechseln**: Wähle einen MR aus der Liste oder wechsle zu einem anderen Branch
+3. **Änderungen behandeln**: Wenn du ungespeicherte Änderungen hast, hast du drei Optionen:
+   - **Neuen MR erstellen**: Erstellt automatisch einen neuen Branch und Merge Request für deine Änderungen
+   - **Committen & Pushen**: Speichert Änderungen im aktuellen Branch und lädt sie zu GitLab hoch
+   - **Verwerfen**: Verwirft alle ungespeicherten Änderungen
+4. **Weiterarbeiten**: Nach dem Branch-Wechsel kannst du im neuen Branch weiterarbeiten
+
+**Vorteile:**
+
+- **Flexibel**: Arbeite auf jedem Branch und entscheide später, wie du die Änderungen organisierst
+- **Einfach**: Kein manuelles Git im Terminal nötig
+- **Schnell**: Direkter Wechsel zwischen verschiedenen Merge Requests
+- **Übersichtlich**: Alle offenen Merge Requests auf einen Blick
+- **Keine Git-Kenntnisse nötig**: Commit, Push und Branch-Erstellung werden automatisch kombiniert
+- **Sicher**: Änderungen werden nie verloren - du wirst immer gefragt, was damit passieren soll
+
 ## Lizenz
 
 MIT License - siehe [LICENSE](LICENSE) Datei für Details.

@@ -284,4 +284,44 @@ export class GitLabClient {
 			return false;
 		}
 	}
+
+	async createMergeRequestFromUncommittedChanges(
+		branchName: string,
+		title: string,
+		description: string,
+		commitMessage: string,
+		targetBranch: string,
+		workspacePath: string
+	): Promise<MergeRequest | null> {
+		try {
+			const git = simpleGit(workspacePath);
+
+			// Create and checkout new branch
+			new Notice(`Erstelle Branch ${branchName}...`);
+			await git.checkoutLocalBranch(branchName);
+
+			// Stage all changes and commit
+			new Notice('Erstelle Commit...');
+			await git.add('.');
+			await git.commit(commitMessage);
+
+			// Push to remote and set upstream
+			new Notice(`Pushe Branch ${branchName} zum Remote...`);
+			await git.push('origin', branchName, ['--set-upstream']);
+
+			// Create merge request
+			new Notice('Erstelle Merge Request...');
+			const mr = await this.createMergeRequest(branchName, targetBranch, title, description);
+
+			if (mr) {
+				new Notice(`Merge Request !${mr.iid} erfolgreich erstellt`);
+			}
+
+			return mr;
+		} catch (error) {
+			console.error('Failed to create merge request from uncommitted changes:', error);
+			new Notice(`Fehler beim Erstellen des Merge Request: ${error instanceof Error ? error.message : String(error)}`);
+			return null;
+		}
+	}
 }

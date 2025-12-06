@@ -106,6 +106,41 @@ export class GitManager {
 		}
 	}
 
+	async hasUncommittedChanges(): Promise<boolean> {
+		try {
+			const status: StatusResult = await this.git.status();
+			return !status.isClean();
+		} catch (error) {
+			console.error('Failed to check for uncommitted changes:', error);
+			return false;
+		}
+	}
+
+	async commitAndPush(message: string): Promise<void> {
+		try {
+			await this.git.add('.');
+			await this.git.commit(message);
+			await this.git.push();
+			new Notice('Änderungen committed und gepusht');
+		} catch (error) {
+			console.error('Failed to commit and push:', error);
+			new Notice('Fehler beim Committen und Pushen');
+			throw error;
+		}
+	}
+
+	async discardChanges(): Promise<void> {
+		try {
+			await this.git.reset(['--hard']);
+			await this.git.clean('f', ['-d']);
+			new Notice('Änderungen verworfen');
+		} catch (error) {
+			console.error('Failed to discard changes:', error);
+			new Notice('Fehler beim Verwerfen der Änderungen');
+			throw error;
+		}
+	}
+
 	async createBranch(branchName: string): Promise<void> {
 		try {
 			await this.git.checkoutLocalBranch(branchName);

@@ -19,8 +19,7 @@ export function createGitSwitchBranchCommand(plugin: GitLabPlugin): Command {
 				const branchSelector = await plugin.showBranchSelector(branches, currentBranch);
 
 				if (branchSelector) {
-					await plugin.gitManager.switchBranch(branchSelector);
-					plugin.statusBar.update();
+					await plugin.handleBranchSwitch(branchSelector);
 				}
 			} catch (error) {
 				console.error('Git switch branch failed:', error);
