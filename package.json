@@ -1,6 +1,6 @@
 {
   "name": "gitlabvault",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "GitLabVault - Verwalte GitLab Merge Requests und Git-Operationen direkt in Obsidian",
   "main": "main.js",
   "scripts": {
