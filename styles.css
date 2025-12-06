@@ -3,6 +3,49 @@
 	padding: 10px;
 }
 
+/* Git Commands Toolbar */
+.gitlab-git-toolbar {
+	display: flex;
+	gap: 4px;
+	padding: 8px;
+	background-color: var(--background-secondary);
+	border-radius: 5px;
+	margin-bottom: 0;
+}
+
+.gitlab-toolbar-button {
+	padding: 6px 10px;
+	background-color: transparent;
+	color: var(--text-muted);
+	border: 1px solid transparent;
+	border-radius: 3px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.gitlab-toolbar-button:hover {
+	background-color: var(--background-modifier-hover);
+	color: var(--text-normal);
+	border-color: var(--background-modifier-border);
+}
+
+.gitlab-toolbar-button:active {
+	transform: scale(0.95);
+}
+
+.gitlab-toolbar-button svg {
+	display: block;
+}
+
+.gitlab-toolbar-separator {
+	height: 2px;
+	background: linear-gradient(to right, transparent, var(--background-modifier-border), transparent);
+	margin: 8px 0 15px 0;
+}
+
 .gitlab-mr-header {
 	margin-bottom: 15px;
 }
