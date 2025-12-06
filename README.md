@@ -7,11 +7,14 @@ GitLabVault verbindet deinen Obsidian Vault mit GitLab - verwalte Merge Requests
 - **GitLab Integration**
   - Merge Requests anzeigen und filtern
   - Nach Status, Autor, Labels filtern
+  - Git-Commands-Toolbar für schnellen Zugriff
+  - Branch-Selector mit priorisiertem main Branch
 
 - **Git-Operationen**
   - Vault als Git-Repository verwalten
   - Commit, Push, Pull direkt aus Obsidian
   - Branch-Verwaltung (erstellen, wechseln, löschen)
+  - Schneller Checkout zum main Branch
   - Git Status in der Status Bar
 
 ## Installation
@@ -75,6 +78,9 @@ Die Release-Dateien (`main.js`, `manifest.json`, `styles.css`) werden automatisc
 - `Git: Pull` - Änderungen pullen
 - `Git: Switch Branch` - Branch wechseln
 - `Git: Create Branch` - Neuen Branch erstellen
+- `Git: Checkout Main` - Schnell zum main Branch wechseln
+
+Alle Git-Commands sind auch über die Toolbar in der Merge Request View verfügbar.
 
 ## Lizenz
 
