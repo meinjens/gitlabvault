@@ -419,6 +419,9 @@ export class MergeRequestView extends ItemView {
 		}
 
 		try {
+			// Ensure .gitignore is correct (workspace.json and data.json excluded)
+			await this.plugin.gitManager.ensureGitignore();
+
 			// Check for uncommitted changes
 			const hasChanges = await this.plugin.gitManager.hasUncommittedChanges();
 

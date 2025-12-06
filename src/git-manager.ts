@@ -174,14 +174,25 @@ export class GitManager {
 		}
 	}
 
-	async checkGitignore(): Promise<{ exists: boolean; hasWorkspaceJson: boolean }> {
+	async checkGitignore(): Promise<{ exists: boolean; hasWorkspaceJson: boolean; hasDataJson: boolean }> {
 		const fs = require('fs').promises;
 		const path = require('path');
 		const gitignorePath = path.join(this.vaultPath, '.gitignore');
 
-		const validEntries = [
+		const workspaceEntries = [
 			'.obsidian/workspace.json',
 			'.obsidian/workspace*.json',
+			'.obsidian',
+			'.obsidian/',
+			'.obsidian/*'
+		];
+
+		const dataJsonEntries = [
+			'.obsidian/plugins/*/data.json',
+			'data.json',
+			'.obsidian/plugins',
+			'.obsidian/plugins/',
+			'.obsidian/plugins/*',
 			'.obsidian',
 			'.obsidian/',
 			'.obsidian/*'
@@ -190,11 +201,12 @@ export class GitManager {
 		try {
 			const content = await fs.readFile(gitignorePath, 'utf-8');
 			const lines = content.split('\n').map((line: string) => line.trim());
-			const hasWorkspaceJson = lines.some((line: string) => validEntries.includes(line));
+			const hasWorkspaceJson = lines.some((line: string) => workspaceEntries.includes(line));
+			const hasDataJson = lines.some((line: string) => dataJsonEntries.includes(line));
 
-			return { exists: true, hasWorkspaceJson };
+			return { exists: true, hasWorkspaceJson, hasDataJson };
 		} catch {
-			return { exists: false, hasWorkspaceJson: false };
+			return { exists: false, hasWorkspaceJson: false, hasDataJson: false };
 		}
 	}
 
@@ -222,6 +234,36 @@ export class GitManager {
 			console.error('Failed to update .gitignore:', error);
 			new Notice('Fehler beim Aktualisieren der .gitignore');
 			throw error;
+		}
+	}
+
+	async ensureGitignore(): Promise<void> {
+		const check = await this.checkGitignore();
+
+		if (!check.exists) {
+			// Create .gitignore with both entries
+			const fs = require('fs').promises;
+			const path = require('path');
+			const gitignorePath = path.join(this.vaultPath, '.gitignore');
+
+			const content = `# Obsidian workspace (persönliche Einstellungen)
+.obsidian/workspace.json
+
+# Plugin-Einstellungen (können sensible Daten wie Tokens enthalten)
+.obsidian/plugins/*/data.json
+`;
+			await fs.writeFile(gitignorePath, content, 'utf-8');
+			new Notice('.gitignore erstellt mit Obsidian-Einträgen');
+			return;
+		}
+
+		// Add missing entries
+		if (!check.hasWorkspaceJson) {
+			await this.addToGitignore('.obsidian/workspace.json');
+		}
+
+		if (!check.hasDataJson) {
+			await this.addToGitignore('.obsidian/plugins/*/data.json');
 		}
 	}
 }

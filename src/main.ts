@@ -150,6 +150,9 @@ export default class GitLabPlugin extends Plugin {
 
 	async handleBranchSwitch(targetBranch: string): Promise<boolean> {
 		try {
+			// Ensure .gitignore is correct (workspace.json and data.json excluded)
+			await this.gitManager.ensureGitignore();
+
 			// Check for uncommitted changes
 			const hasChanges = await this.gitManager.hasUncommittedChanges();
 
