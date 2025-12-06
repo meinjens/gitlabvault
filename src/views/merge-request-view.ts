@@ -75,32 +75,50 @@ export class MergeRequestView extends ItemView {
 		// Git Commands Toolbar
 		const toolbar = this.container.createDiv({ cls: 'gitlab-git-toolbar' });
 
-		const commitBtn = toolbar.createEl('button', { text: 'Commit', cls: 'gitlab-toolbar-button' });
+		const commitBtn = toolbar.createEl('button', { cls: 'gitlab-toolbar-button' });
+		commitBtn.setAttribute('aria-label', 'Commit');
+		commitBtn.setAttribute('title', 'Commit');
+		commitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 		commitBtn.addEventListener('click', async () => {
 			await this.handleGitCommit();
 		});
 
-		const pushBtn = toolbar.createEl('button', { text: 'Push', cls: 'gitlab-toolbar-button' });
+		const pushBtn = toolbar.createEl('button', { cls: 'gitlab-toolbar-button' });
+		pushBtn.setAttribute('aria-label', 'Push');
+		pushBtn.setAttribute('title', 'Push');
+		pushBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>';
 		pushBtn.addEventListener('click', async () => {
 			await this.handleGitPush();
 		});
 
-		const pullBtn = toolbar.createEl('button', { text: 'Pull', cls: 'gitlab-toolbar-button' });
+		const pullBtn = toolbar.createEl('button', { cls: 'gitlab-toolbar-button' });
+		pullBtn.setAttribute('aria-label', 'Pull');
+		pullBtn.setAttribute('title', 'Pull');
+		pullBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
 		pullBtn.addEventListener('click', async () => {
 			await this.handleGitPull();
 		});
 
-		const switchBranchBtn = toolbar.createEl('button', { text: 'Branch wechseln', cls: 'gitlab-toolbar-button' });
+		const switchBranchBtn = toolbar.createEl('button', { cls: 'gitlab-toolbar-button' });
+		switchBranchBtn.setAttribute('aria-label', 'Branch wechseln');
+		switchBranchBtn.setAttribute('title', 'Branch wechseln');
+		switchBranchBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg>';
 		switchBranchBtn.addEventListener('click', async () => {
 			await this.handleSwitchBranch();
 		});
 
-		const createBranchBtn = toolbar.createEl('button', { text: 'Branch erstellen', cls: 'gitlab-toolbar-button' });
+		const createBranchBtn = toolbar.createEl('button', { cls: 'gitlab-toolbar-button' });
+		createBranchBtn.setAttribute('aria-label', 'Branch erstellen');
+		createBranchBtn.setAttribute('title', 'Branch erstellen');
+		createBranchBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path><line x1="18" y1="3" x2="18" y2="9"></line></svg>';
 		createBranchBtn.addEventListener('click', async () => {
 			await this.handleCreateBranch();
 		});
 
-		const checkoutMainBtn = toolbar.createEl('button', { text: 'Main', cls: 'gitlab-toolbar-button' });
+		const checkoutMainBtn = toolbar.createEl('button', { cls: 'gitlab-toolbar-button' });
+		checkoutMainBtn.setAttribute('aria-label', 'Main Branch auschecken');
+		checkoutMainBtn.setAttribute('title', 'Main Branch auschecken');
+		checkoutMainBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>';
 		checkoutMainBtn.addEventListener('click', async () => {
 			await this.handleCheckoutMain();
 		});
