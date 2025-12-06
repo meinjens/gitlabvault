@@ -1,6 +1,29 @@
 import simpleGit, { SimpleGit, StatusResult } from 'simple-git';
 import { Notice } from 'obsidian';
 import { GitStatus } from './types';
+import { promises as fs } from 'fs';
+import path from 'path';
+
+// Gitignore patterns for Obsidian workspace files
+const WORKSPACE_GITIGNORE_PATTERNS = [
+	'.obsidian/workspace.json',
+	'.obsidian/workspace*.json',
+	'.obsidian',
+	'.obsidian/',
+	'.obsidian/*'
+];
+
+// Gitignore patterns for plugin data files
+const DATA_JSON_GITIGNORE_PATTERNS = [
+	'.obsidian/plugins/*/data.json',
+	'data.json',
+	'.obsidian/plugins',
+	'.obsidian/plugins/',
+	'.obsidian/plugins/*',
+	'.obsidian',
+	'.obsidian/',
+	'.obsidian/*'
+];
 
 export class GitManager {
 	private git: SimpleGit;
@@ -175,34 +198,13 @@ export class GitManager {
 	}
 
 	async checkGitignore(): Promise<{ exists: boolean; hasWorkspaceJson: boolean; hasDataJson: boolean }> {
-		const fs = require('fs').promises;
-		const path = require('path');
 		const gitignorePath = path.join(this.vaultPath, '.gitignore');
-
-		const workspaceEntries = [
-			'.obsidian/workspace.json',
-			'.obsidian/workspace*.json',
-			'.obsidian',
-			'.obsidian/',
-			'.obsidian/*'
-		];
-
-		const dataJsonEntries = [
-			'.obsidian/plugins/*/data.json',
-			'data.json',
-			'.obsidian/plugins',
-			'.obsidian/plugins/',
-			'.obsidian/plugins/*',
-			'.obsidian',
-			'.obsidian/',
-			'.obsidian/*'
-		];
 
 		try {
 			const content = await fs.readFile(gitignorePath, 'utf-8');
-			const lines = content.split('\n').map((line: string) => line.trim());
-			const hasWorkspaceJson = lines.some((line: string) => workspaceEntries.includes(line));
-			const hasDataJson = lines.some((line: string) => dataJsonEntries.includes(line));
+			const lines = content.split('\n').map(line => line.trim());
+			const hasWorkspaceJson = lines.some(line => WORKSPACE_GITIGNORE_PATTERNS.includes(line));
+			const hasDataJson = lines.some(line => DATA_JSON_GITIGNORE_PATTERNS.includes(line));
 
 			return { exists: true, hasWorkspaceJson, hasDataJson };
 		} catch {
@@ -211,8 +213,6 @@ export class GitManager {
 	}
 
 	async addToGitignore(entry: string): Promise<void> {
-		const fs = require('fs').promises;
-		const path = require('path');
 		const gitignorePath = path.join(this.vaultPath, '.gitignore');
 
 		try {
@@ -227,7 +227,7 @@ export class GitManager {
 				content += '\n';
 			}
 
-			content += `\n# Obsidian workspace (persönliche Einstellungen)\n${entry}\n`;
+			content += `\n# Obsidian workspace and plugin settings\n${entry}\n`;
 			await fs.writeFile(gitignorePath, content, 'utf-8');
 			new Notice('.gitignore aktualisiert');
 		} catch (error) {
@@ -242,14 +242,12 @@ export class GitManager {
 
 		if (!check.exists) {
 			// Create .gitignore with both entries
-			const fs = require('fs').promises;
-			const path = require('path');
 			const gitignorePath = path.join(this.vaultPath, '.gitignore');
 
-			const content = `# Obsidian workspace (persönliche Einstellungen)
+			const content = `# Obsidian workspace (personal settings)
 .obsidian/workspace.json
 
-# Plugin-Einstellungen (können sensible Daten wie Tokens enthalten)
+# Plugin settings (may contain sensitive data like tokens)
 .obsidian/plugins/*/data.json
 `;
 			await fs.writeFile(gitignorePath, content, 'utf-8');

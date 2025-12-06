@@ -450,3 +450,12 @@
 .gitlab-commit-button:active {
 	transform: scale(0.98);
 }
+
+/* Gitignore Status Bar */
+.gitignore-status-warning {
+	color: #ff6b6b;
+}
+
+.gitignore-status-success {
+	color: #4ade80;
+}

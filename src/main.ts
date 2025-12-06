@@ -10,6 +10,7 @@ import { BranchNameModal } from './modals/branch-name-modal';
 import { BranchSelectorModal } from './modals/branch-selector-modal';
 import { UncommittedChangesModal, UncommittedChangesAction } from './modals/uncommitted-changes-modal';
 import { CreateMergeRequestModal } from './modals/create-merge-request-modal';
+import { ConfirmDiscardModal } from './modals/confirm-discard-modal';
 import { registerAllCommands } from './commands';
 
 const GITLAB_ICON = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.387 9.452.045 13.587a.924.924 0 0 0 .331 1.023L12 23.054l11.624-8.443a.924.924 0 0 0 .331-1.024"/></svg>`;
@@ -33,8 +34,13 @@ export default class GitLabPlugin extends Plugin {
 			(leaf) => new MergeRequestView(leaf, this)
 		);
 
-		this.addRibbonIcon('gitlab', 'GitLab Merge Requests', () => {
-			this.activateMergeRequestView();
+		this.addRibbonIcon('gitlab', 'GitLab Merge Requests', async () => {
+			try {
+				await this.activateMergeRequestView();
+			} catch (error) {
+				console.error('Failed to activate merge request view:', error);
+				new Notice('Fehler beim Öffnen der Merge Request Ansicht');
+			}
 		});
 
 		this.statusBar = new GitStatusBar(this.addStatusBarItem(), this.gitManager);
@@ -175,81 +181,96 @@ export default class GitLabPlugin extends Plugin {
 		});
 	}
 
+	async confirmDiscardChanges(): Promise<boolean> {
+		return new Promise((resolve) => {
+			const modal = new ConfirmDiscardModal(this.app, (confirmed) => {
+				resolve(confirmed);
+			});
+			modal.open();
+		});
+	}
+
+	async handleUncommittedChanges(): Promise<boolean> {
+		const hasChanges = await this.gitManager.hasUncommittedChanges();
+
+		if (!hasChanges) {
+			return true;
+		}
+
+		const action = await this.promptForUncommittedChangesAction();
+
+		if (action === 'cancel') {
+			return false;
+		}
+
+		if (action === 'discard') {
+			const confirmed = await this.confirmDiscardChanges();
+			if (!confirmed) {
+				new Notice('Operation abgebrochen');
+				return false;
+			}
+			await this.gitManager.discardChanges();
+			return true;
+		}
+
+		if (action === 'commit-push') {
+			const message = await this.promptForCommitMessage();
+			if (!message) {
+				new Notice('Operation abgebrochen');
+				return false;
+			}
+			await this.gitManager.commitAndPush(message);
+			return true;
+		}
+
+		if (action === 'create-mr') {
+			const mrDetails = await this.promptForMergeRequestDetails();
+			if (!mrDetails) {
+				new Notice('Operation abgebrochen');
+				return false;
+			}
+
+			const vaultPath = (this.app.vault.adapter as FileSystemAdapter).getBasePath();
+			const commitMessage = mrDetails.title;
+
+			await this.gitlabClient.createMergeRequestFromUncommittedChanges(
+				mrDetails.branchName,
+				mrDetails.title,
+				mrDetails.description,
+				commitMessage,
+				mrDetails.targetBranch,
+				vaultPath
+			);
+
+			// Refresh MR view if open
+			const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_MERGE_REQUESTS);
+			if (leaves.length > 0) {
+				const view = leaves[0].view as MergeRequestView;
+				await view.loadAndRenderMergeRequests();
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	async handleBranchSwitch(targetBranch: string): Promise<boolean> {
 		try {
 			// Ensure .gitignore is correct (workspace.json and data.json excluded)
 			await this.gitManager.ensureGitignore();
 
-			// Check for uncommitted changes
-			const hasChanges = await this.gitManager.hasUncommittedChanges();
+			// Handle uncommitted changes
+			const shouldContinue = await this.handleUncommittedChanges();
 
-			if (!hasChanges) {
-				// No changes, switch directly
-				await this.gitManager.switchBranch(targetBranch);
-				this.statusBar.update();
-				return true;
-			}
-
-			// Ask user what to do with uncommitted changes
-			const action = await this.promptForUncommittedChangesAction();
-
-			if (action === 'cancel') {
+			if (!shouldContinue) {
 				return false;
 			}
 
-			if (action === 'discard') {
-				await this.gitManager.discardChanges();
-				await this.gitManager.switchBranch(targetBranch);
-				this.statusBar.update();
-				return true;
-			}
-
-			if (action === 'commit-push') {
-				const message = await this.promptForCommitMessage();
-				if (!message) {
-					new Notice('Branch-Wechsel abgebrochen');
-					return false;
-				}
-				await this.gitManager.commitAndPush(message);
-				await this.gitManager.switchBranch(targetBranch);
-				this.statusBar.update();
-				return true;
-			}
-
-			if (action === 'create-mr') {
-				const mrDetails = await this.promptForMergeRequestDetails();
-				if (!mrDetails) {
-					new Notice('Branch-Wechsel abgebrochen');
-					return false;
-				}
-
-				const vaultPath = (this.app.vault.adapter as FileSystemAdapter).getBasePath();
-				const commitMessage = mrDetails.title;
-
-				await this.gitlabClient.createMergeRequestFromUncommittedChanges(
-					mrDetails.branchName,
-					mrDetails.title,
-					mrDetails.description,
-					commitMessage,
-					mrDetails.targetBranch,
-					vaultPath
-				);
-
-				// After creating MR, switch to target branch
-				await this.gitManager.switchBranch(targetBranch);
-				this.statusBar.update();
-
-				// Refresh MR view if open
-				const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_MERGE_REQUESTS);
-				if (leaves.length > 0) {
-					const view = leaves[0].view as MergeRequestView;
-					await view.loadAndRenderMergeRequests();
-				}
-
-				return true;
-			}
-
-			return false;
+			// Switch to target branch
+			await this.gitManager.switchBranch(targetBranch);
+			this.statusBar.update();
+			return true;
 		} catch (error) {
 			console.error('Failed to handle branch switch:', error);
 			new Notice('Fehler beim Branch-Wechsel');
