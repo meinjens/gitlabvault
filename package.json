@@ -37,6 +37,6 @@
   },
   "dependencies": {
     "@gitbeaker/rest": "^43.8.0",
-    "simple-git": "^3.30.0"
+    "simple-git": "^3.32.3"
   }
 }
